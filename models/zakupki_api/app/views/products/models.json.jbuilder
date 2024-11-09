@@ -1,0 +1,1 @@
+json.array! @models.map(&:model)

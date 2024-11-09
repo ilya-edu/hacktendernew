@@ -1,0 +1,9 @@
+torch
+peft
+transformers
+flask
+pandas
+pyarrow
+accelerate
+bitsandbytes
+sentencepiece

@@ -1,0 +1,52 @@
+version: '3.4'
+x-rails-common-settings: &rails-common-settings
+  image: vchekryzhov/zakupki_api
+  environment:
+    RAILS_MASTER_KEY: 2fe119b82f38bd258ddc8f356e586a52
+    DB_NAME: zakupki_db
+    DB_USERNAME: postgres
+    DB_PASSWORD: postgres
+    DB_HOST: lantern_db
+    REDIS_URL: redis://redis:6379/1
+    MALLOC_ARENA_MAX: 2
+    WEB_CONCURRENCY: 0
+    ENCODER_URL: 'encoder:5000'
+  depends_on:
+    - lantern_db
+    - redis
+services:
+  rails:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    <<: *rails-common-settings
+    ports:
+      - "3021:3000"
+  good_job:
+    <<: *rails-common-settings
+    command: ['bundle', 'exec', 'good_job', 'start']
+  lantern_db:
+    image: lanterndata/lantern-suite:latest-pg15
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: zakupki_db
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+  redis:
+    image: "redis:7-alpine"
+    ports:
+      - "6379"
+    volumes:
+      - redis_data:/var/lib/redis/data
+  encoder:
+    image: 'vchekryzhov/zakupki_embeder'
+    ports:
+      - "5000:5000"
+
+volumes:
+  pg_data:
+  redis_data:
+  encoder_models:
